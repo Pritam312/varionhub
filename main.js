@@ -185,11 +185,11 @@
     { name: '[Full name]', role: 'Chief Technology Officer', photo: '', tags: ['Agentic infrastructure', 'Platform architecture'], bio: '[Two or three sentences covering your technology and infrastructure background, and how you are shaping the i-way.]', link: '' },
     { name: '[Full name]', role: 'Head — Skills & Workforce', photo: '', tags: ['Workforce enablement', 'New job profiles'], bio: '[Two or three sentences on your work in capability building, training and the creation of new job profiles.]', link: '' },
     { name: '[Full name]', role: 'Head — Agriculture & Rural Ecosystem', photo: '', tags: ['Agriculture', 'FPO & rural enterprise'], bio: '[Two or three sentences on your experience with farmers, producer organisations and rural value chains.]', link: '' },
-    { name: '[Full name]', role: 'Head — Small-scale Industry & Energy', photo: '', tags: ['MSME enablement', 'Energy'], bio: '[Two or three sentences on your work with small enterprises, industrial clusters and local energy systems.]', link: '' },
+    { name: '[Full name]', role: 'Head — MSME & Energy', photo: '', tags: ['MSME enablement', 'Energy'], bio: '[Two or three sentences on your work with small enterprises, industrial clusters and local energy systems.]', link: '' },
     { name: '[Full name]', role: 'Innovation & Ecosystem Partnerships', photo: '', tags: ['Startup enablement', 'Investor readiness'], bio: '[Two or three sentences on mentoring early-stage teams and helping them reach investors and market.]', link: '' }
   ];
 
-  const teamGrid = $('#teamGrid');
+  const teamGrid = null; // profiles hidden until TEAM array is populated
   if (teamGrid) {
     const esc = (value) => String(value).replace(/[&<>"']/g, (char) => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -298,7 +298,7 @@
         ['Agriculture', 'Farmers and producer organisations connected to services, finance, markets and useful information.'],
         ['Skills', 'Capability as the first infrastructure for meaningful roles in digital workplaces and local economies.'],
         ['Energy', 'More accessible, responsive and smarter local energy ecosystems underpinning every other vertical.'],
-        ['Small-scale industry', 'Helping smaller enterprises access capabilities, partners, finance and digital pathways.']
+        ['MSME', 'Helping smaller enterprises access capabilities, partners, finance and digital pathways.']
       ]
     },
     livelihoods: {
@@ -538,6 +538,79 @@
       }
     });
   }
+
+  // Vertical cards — click to expand detail drawer below grid
+  const verticalData = {
+    energy: {
+      title: 'Energy',
+      color: '#18d5e8',
+      body: '<p>Make clean energy easier to adopt, operate and manage.</p>'
+    },
+    agriculture: {
+      title: 'Agriculture',
+      color: '#10d9b0',
+      body: `
+        <p class="vd-bengali" lang="bn">চাষ থেকে বাজার পর্যন্ত — হিসাব, লেনদেন আর সহযোগিতা এক জায়গায়।</p>
+        <p class="vd-translation">From the field to the market: records, transactions and support in one place.</p>
+        <p>An FPO handles many everyday tasks: keeping member records, arranging seeds and fertiliser, collecting produce, recording weight and grade, finding buyers, tracking sales and paying farmers. We want to make that work easier to manage.</p>
+        <p>Our focus includes farmer and member records; crop and input planning; produce collection, weighing and stock; buyer orders and sale prices; farmer payments; and the paperwork needed for banks, schemes and compliance. Clear records, local language and on-ground support are central to making it useful.</p>
+      `
+    },
+    ai: {
+      title: 'AI Enablement & Adoption',
+      color: '#8b5cf6',
+      body: '<p>Help people and organisations put AI to work in everyday processes.</p>'
+    },
+    msme: {
+      title: 'MSME',
+      color: '#4f8ef7',
+      body: '<p>Help growing businesses improve operations and reach more customers.</p>'
+    }
+  };
+
+  const drawer = $('#verticalsDrawer');
+  let activeVertical = null;
+
+  $$('.vertical-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const key = card.dataset.vertical;
+      const isOpen = card.getAttribute('aria-expanded') === 'true';
+
+      // Reset all cards
+      $$('.vertical-card').forEach((c) => c.setAttribute('aria-expanded', 'false'));
+
+      if (isOpen || !drawer) {
+        // Close
+        if (drawer) drawer.hidden = true;
+        activeVertical = null;
+        return;
+      }
+
+      // Open this card
+      card.setAttribute('aria-expanded', 'true');
+      activeVertical = key;
+      const data = verticalData[key];
+      drawer.style.setProperty('--drawer-color', data.color);
+      drawer.innerHTML = `
+        <div class="vd-inner">
+          <div class="vd-header">
+            <span class="vd-title">${data.title}</span>
+            <button class="vd-close" aria-label="Close detail">&times;</button>
+          </div>
+          <div class="vd-body">${data.body}</div>
+        </div>
+      `;
+      drawer.hidden = false;
+      drawer.querySelector('.vd-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        drawer.hidden = true;
+        card.setAttribute('aria-expanded', 'false');
+        activeVertical = null;
+      });
+      // Scroll drawer into view smoothly
+      drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  });
 
   // Mission pillar carousel
   const capSlider = $('#capSlider');
